@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodJournal - AI-Powered Emotion Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>MoodJournal</span>
+            </div>
+            <nav>
+                <button class="active" onclick="showPage('home')">Home</button>
+                <button onclick="showPage('journal')">Journal</button>
+                <button onclick="showPage('history')">History</button>
+                <button onclick="showPage('premium')">Premium</button>
+            </nav>
+            <div class="auth-buttons">
+                <button class="btn btn-outline" onclick="showPage('login')">Login</button>
+                <button class="btn btn-primary" onclick="showPage('register')">Sign Up</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Home Page -->
+            <section id="home" class="page active">
+                <div class="hero">
+                    <h1>Track Your Emotions with AI</h1>
+                    <p>MoodJournal uses advanced AI to help you understand your emotions, track your mood patterns, and improve your mental well-being.</p>
+                    <button class="btn btn-primary" onclick="showPage('journal')">Start Journaling</button>
+                </div>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <i class="fas fa-robot"></i>
+                        <h3>AI Emotion Analysis</h3>
+                        <p>Our AI analyzes your journal entries to detect emotions and provide insights.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Mood Tracking</h3>
+                        <p>Visualize your mood patterns over time with interactive charts and graphs.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-lock"></i>
+                        <h3>Private & Secure</h3>
+                        <p>Your journal entries are encrypted and stored securely in the cloud.</p>
+                    </div>
+                </div>
+
+                <div class="premium-section">
+                    <h2>Unlock Premium Features</h2>
+                    <p>Get advanced analytics, custom notifications, and personalized recommendations</p>
+                    <button class="btn btn-outline" style="background: white; color: var(--primary);" onclick="showPage('premium')">Learn More</button>
+                </div>
+            </section>
+
+            <!-- Journal Page -->
+            <section id="journal" class="page">
+                <div class="mood-entry">
+                    <h2>How are you feeling today?</h2>
+                    <div class="textarea-container">
+                        <textarea id="journal-entry" placeholder="Write about your day, your feelings, or anything on your mind..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeEmotion()">Analyze My Emotions</button>
+
+                    <div id="ai-analysis" class="ai-analysis">
+                        <h3>AI Analysis</h3>
+                        <p>We detected the following emotions in your entry:</p>
+                        <div class="emotion-tags" id="emotion-tags">
+                            <!-- Emotion tags will be inserted here -->
+                        </div>
+                        <p id="ai-insight"></p>
+                        <button class="btn btn-primary" onclick="saveEntry()">Save Entry</button>
+                    </div>
+                </div>
+
+                <div class="charts">
+                    <div class="chart-container">
+                        <h3>Weekly Mood Summary</h3>
+                        <canvas id="mood-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Emotion Distribution</h3>
+                        <canvas id="emotion-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Page -->
+            <section id="history" class="page">
+                <div class="history">
+                    <h2>Your Journal History</h2>
+                    <div class="entries" id="entries-list">
+                        <!-- Journal entries will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Premium Page -->
+            <section id="premium" class="page">
+                <div class="premium-section" style="background: linear-gradient(135deg, var(--warning), var(--danger));">
+                    <h2>Upgrade to Premium</h2>
+                    <p>Unlock the full potential of MoodJournal with our premium features</p>
+                </div>
+
+                <div class="premium-features">
+                    <div class="premium-feature">
+                        <i class="fas fa-chart-pie"></i>
+                        <h3>Advanced Analytics</h3>
+                        <p>Deeper insights into your mood patterns with detailed analytics</p>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-bell"></i>
+                        <h3>Custom Notifications</h3>
+                        <p>Get reminders and prompts based on your mood patterns</p>
+                    </div>
+                    <div class="premium-feature">
+                        <i class="fas fa-magic"></i>
+                        <h3>Personalized Recommendations</h3>
+                        <p>Get tailored activities and exercises to improve your mood</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Subscription Plans</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                        <div style="padding: 20px; border: 2px solid #e2e8f0; border-radius: 12px;">
+                            <h4>Monthly</h4>
+                            <p style="font-size: 24px; font-weight: bold; margin: 10px 0;">$5.99/month</p>
+                            <button class="btn btn-primary" onclick="subscribe('monthly')">Subscribe</button>
+                        </div>
+                        <div style="padding: 20px; border: 2px solid #e2e8f0; border-radius: 12px;">
+                            <h4>Yearly</h4>
+                            <p style="font-size: 24px; font-weight: bold; margin: 10px 0;">$59.99/year</p>
+                            <p style="color: var(--success);">Save 16%</p>
+                            <button class="btn btn-primary" onclick="subscribe('yearly')">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Login Page -->
+            <section id="login" class="page">
+                <div class="chart-container" style="max-width: 500px; margin: 0 auto;">
+                    <h2>Login to Your Account</h2>
+                    <form id="login-form" style="margin-top: 20px;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                            <input type="email" id="login-email" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Password</label>
+                            <input type="password" id="login-password" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                    </form>
+                    <p style="text-align: center; margin-top: 20px;">
+                        Don't have an account? <a href="#" onclick="showPage('register')" style="color: var(--primary);">Sign up</a>
+                    </p>
+                </div>
+            </section>
+
+            <!-- Register Page -->
+            <section id="register" class="page">
+                <div class="chart-container" style="max-width: 500px; margin: 0 auto;">
+                    <h2>Create an Account</h2>
+                    <form id="register-form" style="margin-top: 20px;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Name</label>
+                            <input type="text" id="register-name" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                            <input type="email" id="register-email" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Password</label>
+                            <input type="password" id="register-password" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+                    </form>
+                    <p style="text-align: center; margin-top: 20px;">
+                        Already have an account? <a href="#" onclick="showPage('login')" style="color: var(--primary);">Login</a>
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>MoodJournal &copy; 2023 | AI-Powered Emotion Tracker</p>
+            <p>Powered by Supabase, Hugging Face AI, and IntaSend</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
