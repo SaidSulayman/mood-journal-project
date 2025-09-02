@@ -1,207 +1,171 @@
-﻿# Mood Journal 📓✨
+# Mood Journal App
 
+A modern, AI-powered mood tracking application that helps you understand and reflect on your emotional well-being. Built with Supabase, Hugging Face AI, and IntaSend payment integration.
 
-A modern, privacy-focused web application for tracking your daily mood and journaling. Built with a React frontend and a Node.js/Express backend, it provides a clean, intuitive interface for users to log their emotional well-being over time.
+## 🌟 Features
 
-
-![Mood Journal App Screenshot](https://via.placeholder.com/800x400.png?text=Mood+Journal+App+Screenshot) *// Replace with an actual screenshot path*
-
-
-## 🚀 Features
-
-
-- **Daily Mood Logging:** Quickly select your mood from a colourful spectrum of emotions (e.g., happy, sad, anxious, energetic).
-- **Rich Journal Entries:** Add detailed notes, thoughts, and reflections to each daily log.
-- **Visual Insights:** View your mood history through interactive charts and calendars to identify patterns and trends over time.
-- **Data Privacy First:** Your journal entries are yours alone. They are stored securely and never shared.
-- **Responsive Design:** A seamless experience on desktop, tablet, and mobile devices.
-- **Search & Filter:** Easily find past entries by date, mood, or keywords.
-
+- **Daily Mood Tracking**: Record your mood with customizable emotional states
+- **AI-Powered Insights**: Get intelligent analysis of your mood patterns using Hugging Face AI
+- **Secure Authentication**: User management powered by Supabase Auth
+- **Journal Entries**: Add detailed notes to your mood entries
+- **Data Visualization**: View mood trends and patterns over time
+- **Premium Features**: Unlock advanced insights with IntaSend payment integration
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## 🛠️ Tech Stack
 
+- **Backend**: Supabase (PostgreSQL database, authentication, and storage)
+- **AI Integration**: Hugging Face Transformers for mood analysis
+- **Payment Processing**: IntaSend for premium feature subscriptions
+- **Frontend**: React.js with modern CSS/styling framework
+- **Deployment**: Vercel/Netlify (or similar platform)
 
-### Frontend
--   **React** t (v18) – Component-bas UI library
--   **React Router r DOM – Client-si routing
--   **Chart.js / Recharts – For data visualization (mood charts)
--   **CSS-in-JS (Styled-components or Emotion)** OR **Tailwind d CSS – F styling
-- Axios – HTTP client for API requests
-
-
-### Backend
--   **Node.js** - Runtime environment
--   **Express.js** - Web application framework
--   **JWT (jsonwebtoken)** - For user authentication
--   **bcryptjs** - For password hashing
-
-
-### Database
--   **MongoDB with Mongoose** - NoSQL database for flexible data storage of user entries.
-
-
-### Deployment
--   **Frontend:** Vercel / Netlify
--   **Backend:** Heroku / Railway / DigitalOcean App Platform
--   **Database:** MongoDB Atlas (cloud)
-
-
-## 📦 Installation & Local Development
-
-
-Follow these steps to set up the project locally on your machine.
-
+## 🚀 Getting Started
 
 ### Prerequisites
--   Node.js (v16 or higher)
--   npm or yarn
--   A MongoDB database (local or MongoDB Atlas)
 
+- Node.js (v14 or higher)
+- npm or yarn
+- Supabase account
+- Hugging Face API account
+- IntaSend merchant account
 
-### 1. Clone the Repository
+### Installation
+
+1. Clone the repository:
 ```bash
 git clone https://github.com/your-username/mood-journal-app.git
 cd mood-journal-app
 ```
 
-
-### 2. Backend Setup
+2. Install dependencies:
 ```bash
-# Navigate to the backend directory
-cd backend
-
-
-# Install dependencies
 npm install
-
-
-# Create a .env file in the /backend directory
-touch .env
 ```
-Populate the `.env` file with your environment variables:
+
+3. Set up environment variables:
+Create a `.env` file in the root directory with the following variables:
+
 ```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string_here
-JWT_SECRET=your_super_secret_jwt_key_here
-NODE_ENV=development
+REACT_APP_SUPABASE_URL=your_supabase_project_url
+REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+REACT_APP_HUGGING_FACE_API_KEY=your_hugging_face_api_key
+REACT_APP_INTASEND_PUBLIC_KEY=your_intasend_public_key
+REACT_APP_INTASEND_SECRET_KEY=your_intasend_secret_key
 ```
 
+4. Set up your Supabase database:
+- Create a new project in Supabase
+- Run the following SQL to set up the necessary tables:
 
-### 3. Frontend Setup
+```sql
+-- Mood entries table
+CREATE TABLE mood_entries (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
+  mood_score INTEGER NOT NULL,
+  mood_label TEXT NOT NULL,
+  journal_entry TEXT,
+  ai_insights JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- User profiles table
+CREATE TABLE user_profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  username TEXT UNIQUE,
+  full_name TEXT,
+  subscription_tier TEXT DEFAULT 'free',
+  subscription_end_date TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- Enable Row Level Security
+ALTER TABLE mood_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for mood_entries
+CREATE POLICY "Users can view their own mood entries" 
+ON mood_entries FOR SELECT 
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own mood entries" 
+ON mood_entries FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own mood entries" 
+ON mood_entries FOR UPDATE 
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own mood entries" 
+ON mood_entries FOR DELETE 
+USING (auth.uid() = user_id);
+
+-- Create policies for user_profiles
+CREATE POLICY "Users can view their own profile" 
+ON user_profiles FOR SELECT 
+USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile" 
+ON user_profiles FOR UPDATE 
+USING (auth.uid() = id);
+```
+
+5. Start the development server:
 ```bash
-# Navigate to the frontend directory (from the root)
-cd frontend
-
-
-# Install dependencies
-npm install
-
-
-# Create a .env file in the /frontend directory
-touch .env
-```
-Populate the `.env` file:
-```env
-REACT_APP_API_BASE_URL=http://localhost:5000/api
+npm start
 ```
 
+## 🔧 Configuration
 
-### 4. Run the Application
-**Start the Backend Server:**
-```bash
-cd backend
-npm run dev  # Runs the server with nodemon for development
-```
+### Supabase Setup
+1. Create a new project at [Supabase](https://supabase.io)
+2. Get your project URL and API key from Settings > API
+3. Enable Email authentication in Authentication > Settings
 
+### Hugging Face Setup
+1. Create an account at [Hugging Face](https://huggingface.co)
+2. Get your API token from Settings > Access Tokens
+3. The app uses a sentiment analysis model (e.g., distilbert-base-uncased-finetuned-sst-2-english)
 
-**Start the Frontend Development Server:**
-```bash
-cd frontend
-npm start  # Runs the app on http://localhost:3000
-```
-The frontend should automatically open in your browser. The backend API will be available on `http://localhost:5000`.
+### IntaSend Setup
+1. Create a merchant account at [IntaSend](https://intasend.com)
+2. Get your public and secret keys from the dashboard
+3. Configure webhooks for payment verification
 
+## 📱 Usage
 
-## 🗄️ API Endpoints
+1. **Sign Up/Login**: Create an account or login using Supabase authentication
+2. **Record Your Mood**: Select your current mood and add optional journal text
+3. **View Insights**: Get AI-powered analysis of your mood patterns
+4. **Track Progress**: View historical data and trends in your dashboard
+5. **Upgrade (Optional)**: Subscribe to premium features for deeper insights
 
+## 🎨 Customization
 
-| Method | Endpoint | Description | Authentication |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Registers a new user | Public |
-| `POST` | `/api/auth/login` | Logs in a user | Public |
-| `GET` | `/api/entries` | Gets all entries for the logged-in user | Private (JWT) |
-| `POST` | `/api/entries` | Creates a new journal entry | Private (JWT) |
-| `GET` | `/api/entries/:id` | Gets a single entry by ID | Private (JWT) |
-| `PUT` | `/api/entries/:id` | Updates an existing entry | Private (JWT) |
-| `DELETE` | `/api/entries/:id` | Deletes an entry | Private (JWT) |
-| `GET` | `/api/entries/stats/overview` | Gets mood statistics for charts | Private (JWT) |
-
-
-## 🧪 Testing
-
-
-**Backend Tests:**
-```bash
-cd backend
-npm test  # Runs tests using Jest/Mocha
-```
-
-
-**Frontend Tests:**
-```bash
-cd frontend
-npm test  # Launches the test runner (React Testing Library)
-```
-
-
-## 🚢 Deployment
-
-
-This app is configured for easy deployment on modern platforms.
-
-
-1.  **Backend:**
-    -   Ensure your `MONGODB_URI` and `JWT_SECRET` are set in your hosting platform's environment variables.
-    -   Deploy the `backend` folder to Heroku/Railway.
-
-
-2.  **Frontend:**
-    -   Update the `REACT_APP_API_BASE_URL` in the frontend's environment variables to point to your live backend URL (e.g., `https://my-mood-journal-api.herokuapp.com/api`).
-    -   Build the project: `npm run build`
-    -   Deploy the `build` folder to Netlify or Vercel.
-
+The app can be customized by modifying:
+- Color scheme in CSS variables
+- Mood labels and emojis in `src/constants/moodOptions.js`
+- AI model used for analysis in `src/services/aiService.js`
+- Payment plans in `src/components/PaymentPlans.js`
 
 ## 🤝 Contributing
 
+We welcome contributions! Please feel free to submit a Pull Request.
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/your-username/mood-journal-app/issues).
-
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
-
-Please ensure your code follows the existing style and all tests pass.
-
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
 
 ## 🙏 Acknowledgments
 
-
--   Icons provided by [React Icons](https://react-icons.github.io/react-icons/).
--   Charting library [Chart.js](https://www.chartjs.org/).
--   Inspiration from mental health and wellness communities.
-
-
----
-
-
-**⭐ Star this repo if you found it helpful!**
+- Supabase for the excellent backend-as-a-service
+- Hugging Face for making AI models accessible
+- IntaSend for seamless payment processing in Africa
+- React community for amazing tools and libraries
